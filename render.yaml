@@ -1,0 +1,14 @@
+# Optional Render Blueprint. Use a paid (always-on) plan: free services sleep after 15 min idle.
+services:
+  - type: web
+    name: gridwise
+    runtime: docker
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: LLM_PROVIDER
+        value: anthropic
+      - key: LLM_MODEL
+        value: claude-haiku-4-5-20251001
+      - key: ANTHROPIC_API_KEY
+        sync: false

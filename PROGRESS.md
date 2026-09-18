@@ -96,3 +96,17 @@ Running log of what was researched, decided, built and verified. Newest entries 
 - Mock LLM (port 9100; 9000 is taken on this host), 1.5 s delay, 10 % failures: samples 10/10 (p95 3.8 s); load 100 × 20 concurrent → 100 × 200, 0 invalid, p95 3.3 s; 108 LLM / 2 backup interpretations.
 - **Docker verified:** `docker build -t gridwise:local .` OK (494 MB); container smoke test 10/10, p95 37 ms, 400 on malformed body.
 - Still pending: real API key → `eval_interpreter.py`; GitHub repo + GHCR push; hosting; video.
+
+## 9. Submission-day run (2026-09-18, late)
+
+- No paid LLM key available. Picked Groq free tier (OpenAI-compatible endpoint) as primary LLM. Provider supports `response_format: json_object`, which is the structured-output path our `_openai_compatible` client already uses — zero code change, just env vars.
+- First model choice (`llama-3.3-70b-versatile`) was retired by Groq → HTTP 404. Listed live models via `GET /openai/v1/models` and switched to `openai/gpt-oss-120b`.
+- Initial eval run hit HTTP 429 on almost every call → confirmed via response headers: Groq's free tier is **1000 requests/day, 8000 tokens/minute** per key; we were saturating the per-minute token bucket.
+- **Fix in `app/llm.py` + `app/interpreter.py`**: read `Retry-After` and `x-ratelimit-reset-*` headers from 429 responses; raise `LLMError(retry_after_s=...)`; interpreter sleeps exactly that long before retrying (bounded by the 20 s total budget). Honoring the provider's hint avoids token-bucket storms.
+- Added `--delay` flag to `scripts/eval_interpreter.py` for cases where the operator wants extra spacing.
+- **Live LLM accuracy on Groq**: `python scripts/eval_interpreter.py --delay 1` → 70 / 72 from LLM, 2 fell back to backup parser (and were still correct), 0 errors. p95 ~16 s dominated by token-bucket waits between rate-limited requests. Plenty of headroom: judges will send ≤ 10 calls, well under the 1000/day limit.
+- Groq quota at submission time: 969 / 1000 daily requests remaining.
+- **GitHub Actions**: workflow file already exists (test → build amd64 → push GHCR → smoke-test the pushed image). First run on commit `582b0cd` completed successfully in 1m46s. Image pushed to `ghcr.io/raiyan465-f1/gridwise:sha-582b0cd` and `:latest`.
+- **Docker verified locally** before pushing: `docker run` with Groq env vars → 10 / 10 public samples pass, p95 4.9 s, `/health` 200. CI independently verified the pushed image (no key, backup parser path: still 10/10, all responses valid).
+- Video script (`docs/VIDEO_SCRIPT.md`) updated to reflect the Groq deployment and the Retry-After rate-limit handling.
+- Repo: https://github.com/Raiyan465-F1/gridwise (private; will be made public after the deadline per organizer rules).

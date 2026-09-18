@@ -16,7 +16,7 @@ One HTTP service that reads 1–3 natural-language operator notes, turns them in
 Requirements: Python 3.11+ (tested on 3.12) and `git`. Docker optional.
 
 ```bash
-git clone <REPO_URL> gridwise && cd gridwise
+git clone https://github.com/Raiyan465-F1/gridwise.git gridwise && cd gridwise
 python3 -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
@@ -59,7 +59,7 @@ python scripts/run_public_samples.py http://localhost:8000
 | `WEB_WORKERS` | no | `2` | Uvicorn workers (Docker image) |
 | `LOG_LEVEL` | no | `INFO` | Logging level |
 
-**Model / provider used for submission:** Anthropic Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) via the Anthropic Messages API. *(Update this line if you switch provider.)*
+**Model / provider used for submission:** Groq `openai/gpt-oss-120b` via Groq's OpenAI-compatible Chat Completions endpoint (`https://api.groq.com/openai/v1`). Groq's free tier supplies 1000 requests/day and 8000 tokens/minute per key, which the service honors via `Retry-After` / `x-ratelimit-reset-*` headers on 429 responses.
 
 ## 3. Architecture
 
@@ -134,8 +134,13 @@ Verified results (this repository, before deployment):
 The image contains no secrets; pass the key at run time.
 
 ```bash
-docker pull ghcr.io/<OWNER>/<REPO>:<TAG>
-docker run --rm -p 8000:8000 -e ANTHROPIC_API_KEY=<your-key> ghcr.io/<OWNER>/<REPO>:<TAG>
+docker pull ghcr.io/raiyan465-f1/gridwise:sha-1efbf2d
+docker run --rm -p 8000:8000 \
+  -e LLM_PROVIDER=openai \
+  -e OPENAI_BASE_URL=https://api.groq.com/openai/v1 \
+  -e OPENAI_API_KEY=<your-groq-key> \
+  -e LLM_MODEL=openai/gpt-oss-120b \
+  ghcr.io/raiyan465-f1/gridwise:sha-1efbf2d
 curl -s http://localhost:8000/health
 python scripts/run_public_samples.py http://localhost:8000
 ```

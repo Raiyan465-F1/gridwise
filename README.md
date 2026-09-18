@@ -134,13 +134,13 @@ Verified results (this repository, before deployment):
 The image contains no secrets; pass the key at run time.
 
 ```bash
-docker pull ghcr.io/raiyan465-f1/gridwise:sha-582b0cd
+docker pull ghcr.io/raiyan465-f1/gridwise:sha-1efbf2d
 docker run --rm -p 8000:8000 \
   -e LLM_PROVIDER=openai \
   -e OPENAI_BASE_URL=https://api.groq.com/openai/v1 \
   -e OPENAI_API_KEY=<your-groq-key> \
   -e LLM_MODEL=openai/gpt-oss-120b \
-  ghcr.io/raiyan465-f1/gridwise:sha-582b0cd
+  ghcr.io/raiyan465-f1/gridwise:sha-1efbf2d
 curl -s http://localhost:8000/health
 python scripts/run_public_samples.py http://localhost:8000
 ```

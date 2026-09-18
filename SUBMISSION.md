@@ -6,7 +6,7 @@
 |---|---|
 | Public service URL | _deployed during judging window — see below_ |
 | Source repo (private until deadline) | https://github.com/Raiyan465-F1/gridwise |
-| Docker image | `ghcr.io/raiyan465-f1/gridwise:sha-582b0cd` |
+| Docker image | `ghcr.io/raiyan465-f1/gridwise:sha-1efbf2d` |
 | Docker image (alias) | `ghcr.io/raiyan465-f1/gridwise:latest` |
 | Port | 8000 |
 | LLM provider | Groq `openai/gpt-oss-120b` (OpenAI-compatible, free tier) |
@@ -14,13 +14,13 @@
 ## How to run the image yourself
 
 ```bash
-docker pull ghcr.io/raiyan465-f1/gridwise:sha-582b0cd
+docker pull ghcr.io/raiyan465-f1/gridwise:sha-1efbf2d
 docker run --rm -p 8000:8000 \
   -e LLM_PROVIDER=openai \
   -e OPENAI_BASE_URL=https://api.groq.com/openai/v1 \
   -e OPENAI_API_KEY=<your-groq-key> \
   -e LLM_MODEL=openai/gpt-oss-120b \
-  ghcr.io/raiyan465-f1/gridwise:sha-582b0cd
+  ghcr.io/raiyan465-f1/gridwise:sha-1efbf2d
 ```
 
 If you have your own Anthropic / OpenAI / OpenRouter key, replace the four env vars; the
